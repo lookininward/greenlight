@@ -25,7 +25,38 @@ export type AuthAction =
 
 
 // Drive
-export interface DriveState {}
+export interface DriveItem {
+    id: string;
+    name: string;
+    mimeType: string;
+    parents?: string[];
+    webViewLink?: string;
+    webContentLink?: string;
+}
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type DriveAction = any
+export enum DriveType {
+    FILE = 'text/plain',
+    FOLDER = 'application/vnd.google-apps.folder',
+    DOCUMENT = 'application/vnd.google-apps.document',
+    SHEET = 'application/vnd.google-apps.spreadsheet',
+}
+
+export interface DriveState {
+    content: DriveItem[];
+    history: { content: DriveItem[], folder?: DriveItem }[];
+    currentFolder?: DriveItem;
+}
+
+export enum DriveActionTypes {
+    PUSH_CONTENT = 'PUSH_CONTENT',
+    POP_CONTENT = 'POP_CONTENT',
+}
+
+export interface PushContentPayload {
+    content: DriveItem[];
+    folder: { id: string; name: string; mimeType: string };
+}
+
+export type DriveAction =
+    | { type: DriveActionTypes.PUSH_CONTENT; payload: PushContentPayload }
+    | { type: DriveActionTypes.POP_CONTENT }
