@@ -44,12 +44,14 @@ export enum DriveType {
 export interface DriveState {
     content: DriveItem[];
     history: { content: DriveItem[], folder?: DriveItem }[];
+    searchResults: DriveItem[];
     currentFolder?: DriveItem;
 }
 
 export enum DriveActionTypes {
     PUSH_CONTENT = 'PUSH_CONTENT',
     POP_CONTENT = 'POP_CONTENT',
+    SET_SEARCH_RESULTS = 'SET_SEARCH_RESULTS',
 }
 
 export interface PushContentPayload {
@@ -60,3 +62,4 @@ export interface PushContentPayload {
 export type DriveAction =
     | { type: DriveActionTypes.PUSH_CONTENT; payload: PushContentPayload }
     | { type: DriveActionTypes.POP_CONTENT }
+    | { type: DriveActionTypes.SET_SEARCH_RESULTS; payload: DriveItem[] };

@@ -6,12 +6,14 @@ const initialDriveState: DriveState = {
     content: [],
     history: [],
     currentFolder: undefined,
+    searchResults: [],
 };
 
 export const DriveStateContext = createContext<DriveState>(initialDriveState);
 export const DriveDispatchContext = createContext<{
     getFolder: (folderId?: string, folderName?: string) => void;
     goBack: () => void;
+    onSearch: (fileName: string) => void;
 } | undefined>(undefined);
 
 const DriveProvider = ({ children }: { children: ReactNode }) => {
@@ -55,9 +57,33 @@ const DriveProvider = ({ children }: { children: ReactNode }) => {
         dispatch({ type: DriveActionTypes.POP_CONTENT });
     }, []);
 
+    const setSearchResults = useCallback((files: DriveItem[]) => {
+        const content = files && files.length > 0 ? files : [];
+        dispatch({
+            type: DriveActionTypes.SET_SEARCH_RESULTS,
+            payload: content,
+        });
+    }, []);
+
+    const onSearch = useCallback(async (fileName: string) => {
+        try {
+            const folderId = import.meta.env.VITE_GREENLIGHT_FOLDER_ID;
+            const response = await window.gapi.client.drive.files.list({
+                q: `name contains '${fileName}' and '${folderId}' in parents`,
+                pageSize: 10,
+                fields: 'files(id, name, mimeType, parents, webViewLink)',
+            });
+            const files: DriveItem[] = response.result.files;
+            setSearchResults(files);
+        } catch (err) {
+            console.error('Error searching for folder:', err);
+            return;
+        }
+    }, [setSearchResults]);
+
     return (
         <DriveStateContext.Provider value={driveState}>
-            <DriveDispatchContext.Provider value={{ getFolder, goBack }}>
+            <DriveDispatchContext.Provider value={{ getFolder, goBack, onSearch }}>
                 {children}
             </DriveDispatchContext.Provider>
         </DriveStateContext.Provider>

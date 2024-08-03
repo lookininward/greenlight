@@ -1,5 +1,5 @@
 import { Reducer } from 'react';
-import { DriveState, DriveAction, DriveActionTypes } from "../../types";
+import { DriveState, DriveActionTypes, DriveAction } from "../../types";
 
 export const driveReducer: Reducer<DriveState, DriveAction> = (state, action) => {
     switch (action.type) {
@@ -19,6 +19,11 @@ export const driveReducer: Reducer<DriveState, DriveAction> = (state, action) =>
                 history: state.history.slice(0, -1),
             };
         }
+        case DriveActionTypes.SET_SEARCH_RESULTS:
+            return {
+                ...state,
+                searchResults: action.payload,
+            };
         default:
             return state;
     }

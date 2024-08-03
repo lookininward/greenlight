@@ -5,16 +5,25 @@ import { DriveItem, DriveType } from '../types';
 import AuthInfo from './AuthInfo';
 import FolderNav from './FolderNav';
 import DriveListItem from './DriveListItem';
+import Search from './Search';
 
 const DriveContainer = () => {
     const { isAuthenticated } = useAuthState();
-    const { currentFolder, content, history } = useDriveState();
+    const { currentFolder, content, history, searchResults } = useDriveState();
     const { onAuthorize } = useAuthDispatch();
-    const { getFolder, goBack } = useDriveDispatch();
+    const { getFolder, goBack, onSearch } = useDriveDispatch();
 
     const parentFolder = useMemo(() => {
         return history.length > 0 ? history[history.length - 1].folder : undefined;
     }, [history]);
+
+    const showContent = useMemo(() => {
+        return !searchResults.length && content && content.length > 0;
+    }, [content, searchResults]);
+
+    const showSearchResults = useMemo(() => {
+        return searchResults && searchResults.length > 0;
+    }, [searchResults]);
 
     const onClickItem = (item: DriveItem) => {
         if (item.mimeType === DriveType.FOLDER) {
@@ -47,22 +56,40 @@ const DriveContainer = () => {
 
             {isAuthenticated ? (
                 <div className='w-full max-w-3xl flex flex-col gap-y-3'>
-                    <FolderNav
-                        parentFolder={parentFolder}
-                        currentFolder={currentFolder}
-                        goBack={goBack}
-                    />
+                    <Search onSearch={onSearch} />
 
-                    <div className='flex flex-col gap-y-4'>
-                        {content.map(item =>
-                            <DriveListItem
-                                key={item.id}
-                                item={item}
-                                onClickItem={onClickItem}
-                            />
-                        )}
-                        {content.length === 0 && <p>No files found.</p>}
-                    </div>
+                    {!showSearchResults &&
+                        <FolderNav
+                            parentFolder={parentFolder}
+                            currentFolder={currentFolder}
+                            goBack={goBack}
+                        />
+                    }
+
+                    {showContent && (
+                        <div className='flex flex-col gap-y-4'>
+                            {content.map(item =>
+                                <DriveListItem
+                                    key={item.id}
+                                    item={item}
+                                    onClickItem={(item: DriveItem) => onClickItem(item)}
+                                />
+                            )}
+                            {content.length === 0 && <p>No files found.</p>}
+                        </div>
+                    )}
+
+                    {showSearchResults && (
+                        <div className='flex flex-col gap-y-4 mt-4'>
+                            {searchResults.map(item =>
+                                <DriveListItem
+                                    key={item.id}
+                                    item={item}
+                                    onClickItem={(item: DriveItem) => onClickItem(item)}
+                                />
+                            )}
+                        </div>
+                    )}
                 </div>
             ) : <AuthInfo />}
         </div>
