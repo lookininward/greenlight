@@ -3,6 +3,8 @@ import { useAuthDispatch, useAuthState } from '../context/auth/authHooks';
 import { useDriveDispatch, useDriveState } from '../context/drive/driveHooks';
 import { DriveItem, DriveType } from '../types';
 import AuthInfo from './AuthInfo';
+import FolderNav from './FolderNav';
+import DriveListItem from './DriveListItem';
 
 const DriveContainer = () => {
     const { isAuthenticated } = useAuthState();
@@ -45,32 +47,19 @@ const DriveContainer = () => {
 
             {isAuthenticated ? (
                 <div className='w-full max-w-3xl flex flex-col gap-y-3'>
-                    <div className="w-full flex py-4 gap-x-1 text-xl">
-                        {parentFolder && currentFolder?.name !== 'Root' && (
-                            <h2 className="cursor-pointer hover:underline" onClick={goBack}>
-                                {parentFolder?.name} {' > '}
-                            </h2>
-                        )}
-                        <h2 className="font-semibold">{currentFolder?.name}</h2>
-                    </div>
+                    <FolderNav
+                        parentFolder={parentFolder}
+                        currentFolder={currentFolder}
+                        goBack={goBack}
+                    />
+
                     <div className='flex flex-col gap-y-4'>
                         {content.map(item =>
-                            <div
+                            <DriveListItem
                                 key={item.id}
-                                className="
-                                    flex items-center border border-gray-400 p-4 hover:bg-gray-500 cursor-pointer rounded shadow-md bg-gray-700
-                                    border-transparent border-l-4 hover:border-gray-500 transition-all duration-300
-                                "
-                                onClick={() => onClickItem(item)}
-                            >
-                                <div className="mr-4 pr-4 w-20 italic text-xs border-r border-gray-400">
-                                    {item.mimeType === DriveType.FOLDER && 'Folder'}
-                                    {item.mimeType === DriveType.FILE && 'File'}
-                                    {item.mimeType === DriveType.DOCUMENT && 'Document'}
-                                    {item.mimeType === DriveType.SHEET && 'Sheet'}
-                                </div>
-                                <h2>{item.name}</h2>
-                            </div>
+                                item={item}
+                                onClickItem={onClickItem}
+                            />
                         )}
                         {content.length === 0 && <p>No files found.</p>}
                     </div>
