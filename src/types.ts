@@ -22,3 +22,10 @@ export interface AuthPayload {
 export type AuthAction =
     | { type: AuthActionTypes.SET_AUTHENTICATED; payload: boolean }
     | { type: AuthActionTypes.SET_TOKEN_CLIENT; payload: TokenClient };
+
+
+// Drive
+export interface DriveState {}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type DriveAction = any
